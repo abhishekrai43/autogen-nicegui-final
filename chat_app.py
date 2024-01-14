@@ -37,7 +37,7 @@ async def main(client: Client):
                 .props('rounded outlined input-class=mx-3').classes('flex-grow')
 
 
-    await client.connected()  # chat_messages(...) uses run_javascript which is only possible after connecting
+    await client.connected() 
     with ui.column().classes('w-full max-w-2xl mx-auto items-stretch'):
         chat_messages(user_id)
 

@@ -35,6 +35,20 @@ html_str = '''
             background-color: #F9F9F9 !important; 
             border-radius: 8px !important; 
         }
+        .custom-dialog .nicegui-card {
+            width: 50vw;  /* Set the width of the dialog */
+            height: 10vh; /* Set the height of the dialog */
+            font-family: 'Arial', sans-serif; /* Stylish font */
+            font-size: 15px; /* Larger font size */
+            /* Add more styles as needed */
+        }
+        .custom-dialog-label {
+            /* Styles for the label inside the dialog */
+            color: black; /* Example: blue text */
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+        }
+
         .custom-footer {
             position: fixed;
             left: 5px;
@@ -142,7 +156,12 @@ html_str = '''
             background: #fff;
             border-radius: 5px;
             border: 1px solid #0FA47F;
-
+        
+        }
+        .auto-height-textarea textarea {
+            height: auto; /* Initially, height is set based on content */
+            max-height: 60px; /* Approximate height of three lines */
+            overflow-y: auto; /* Show scrollbar when content exceeds max-height */
         }
         .bg-primary {
             # background: #0FA47F!important;
