@@ -10,12 +10,14 @@ import json
 
 load_swear_words()
 last_processed_msg_index = -1
-
+additional_input_field = None
 # groupchat.messages()
 @ui.page('/')
 def main():
     global groupchat 
     global manager
+    global messages
+    global additional_input_field
     ui.add_head_html(html_str)
     messages = [("Task Manager", "Please click on Configure Agents button to start setting up your agents", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))]
     @ui.refreshable
@@ -46,9 +48,9 @@ def main():
 
     user_proxy = autogen.UserProxyAgent(
         name="Requestor",
-        system_message="A Human Admin",
+        system_message=data['user_system_message'],
         code_execution_config=False,
-        human_input_mode="NEVER",
+        human_input_mode=data['human_input_mode'],
     )
 
     # agents list
@@ -67,6 +69,12 @@ def main():
 
         # Clearing existing agents except user_proxy
         agents = [user_proxy]
+        if data['agent_no'] < 2:
+            with ui.dialog().classes('custom-dialog') as warn_dialog, ui.card():
+                ui.label('"GroupChat is underpopulated with 1 agents. "'
+                '"It is recommended to set Speaker Selection Method to round_robin or allow_repeat_speaker to False."'
+                ).classes('custom-dialog-label')
+                warn_dialog.open()
 
         # Adding new agents as per the data
         for agent_no in range(data['agent_no']):
@@ -76,33 +84,33 @@ def main():
             ))
 
         ui.notify('Chosen Settings Applied')
-        print("Creating new groupchat with agents:", [agent.name for agent in agents])
-        groupchat = autogen.GroupChat(agents=agents, messages=[], max_round=data["max_count"])
+        groupchat = autogen.GroupChat(agents=agents, messages=[], max_round=data["max_count"],speaker_selection_method=data['speaker_selection_method'],allow_repeat_speaker=data['allow_repeat_speaker'])
         manager = autogen.GroupChatManager(groupchat=groupchat)
-        print("New groupchat and manager created")
         chat_messages.refresh()
-    
+
+
     async def process_chat_interaction(manager, user_message, messages, groupchat, last_processed_msg_index):
         await user_proxy.a_initiate_chat(manager, message=user_message)
         autogen_messages = groupchat.messages
+
         new_messages = autogen_messages[last_processed_msg_index + 1:]
         stamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         for msg in new_messages:
             content = msg['content']
-            sender_name = msg['name']
+            sender_name = msg.get('name')  
             formatted_content = format_message(content)
             messages.append((sender_name, formatted_content, stamp))
 
         last_processed_msg_index += len(new_messages)
-        chat_messages.refresh()  # Assuming this will update the UI
+        chat_messages.refresh() 
         return last_processed_msg_index
 
     async def send():
         global last_processed_msg_index
-        user_message = task_input.value
+        user_message = task_textarea.value
         stamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        task_input.value = '' 
+        task_textarea.value = '' 
         swear = check_swear_words(user_message)
         if swear:
             messages.append(('Task Manager', swear, stamp))
@@ -174,7 +182,11 @@ def main():
         messages.append(("Task Manager", completion_message, datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         chat_messages.refresh()
 
-
+    def clear_chat():
+        global messages
+        messages.clear()  # Clear all messages
+        chat_messages.refresh()  # Refresh the chat UI
+        
     with ui.row().classes():
         with ui.column().classes('w-full h-full'):
             with ui.row().classes('d-flex justify-between bg-slate-700 w-full'):
@@ -183,14 +195,14 @@ def main():
 
                 ui.button(text="Configure Agents", on_click=lambda e: show(dialog))
                 ui.markdown('<span style="font-size: 20px; color: white; font-family: \'Orbitron\', sans-serif;">**Agent Assist**</span>')
-                ui.button(text="Clear Conversation")
+                ui.button(text="Clear Conversation",on_click=clear_chat)
 
             with ui.row().classes('w-full'):
                 with ui.scroll_area().classes('chat-area w-full p-3 bg-white'):
                     chat_messages()
 
     with ui.footer().classes('custom-footer'):
-        task_input = ui.input(value='Describe your Task').style('width: calc(100% - 90px);')
+        task_textarea = ui.textarea().classes('auto-height-textarea')
         ui.button('Send', on_click=send).style('width: 90px;')
 
-ui.run(title='Agent Assist',reload=False, reconnect_timeout=300)
+ui.run(title='Agent Assist',reload=False, host='localhost',reconnect_timeout=300)
