@@ -26,7 +26,8 @@ numpy==1.26.3
 openai==1.7.2
 orjson==3.9.10
 pscript==0.7.7
-https://github.com/abhishekrai43/autogen-cust
+git+https://github.com/abhishekrai43/autogen-cust.git#egg=pyautogen
+
 pydantic==2.5.3
 pydantic_core==2.14.6
 Pygments==2.17.2
