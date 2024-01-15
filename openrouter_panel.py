@@ -203,6 +203,8 @@ def main():
 
     with ui.footer().classes('custom-footer'):
         task_textarea = ui.textarea().classes('auto-height-textarea')
-        ui.button('Send', on_click=send).style('width: 90px;')
+        ui.button('Send', on_click=send).style('width: 90px; margin-top:7px;')
+        ui.label('Type /help to show help commands').style('color: #04571e; margin-left: 250px; margin-top:15px; font-weight: bold; font-weight: bold; font-family: \'Orbitron\', sans-serif;').classes('text-sm')
+        
 
-ui.run(title='Agent Assist',reload=False, host='localhost',reconnect_timeout=300)
+ui.run(title='Agent Assist',host='localhost',reconnect_timeout=300)
