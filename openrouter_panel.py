@@ -205,4 +205,4 @@ def main():
         task_textarea = ui.textarea().classes('auto-height-textarea')
         ui.button('Send', on_click=send).style('width: 90px;')
 
-ui.run(title='Agent Assist',reload=False, host='localhost',reconnect_timeout=300)
+ui.run(title='Agent Assist',reload=True, host='0.0.0.0',port=443,reconnect_timeout=300)
