@@ -1,12 +1,15 @@
 from nicegui import ui
 import re
 import html
-import os
 
 completion_message = 'Previous Task completed. Please type in your new task.'
 data = {
-    'max_count': 0,
+    'max_count': 5,
+    'human_input_mode': 'NEVER',
+    'speaker_selection_method': 'auto',
     'agent_no': 1,
+    'allow_repeat_speaker':True,
+    'user_system_message':'A human Admin',
     'agents': [
         {
             'name': '',
@@ -46,12 +49,26 @@ def agent_card(container):
 def dialog_box(dialog):
     with ui.column():
         with ui.card().classes("w-full dialog-card"):
-            ui.label('Add agent')
             ui.separator()
             ui.label("Max Count").classes("square")
             slider = ui.slider(min=0, max=35, value=15).props("square outlined").bind_value(data, 'max_count')
             ui.label('Max Count').classes("square").bind_text(data, "max_count")
+            human_input_mode_dropdown = ui.select(
+                label='Human Input Mode', 
+                options=['NEVER', 'TERMINATE', 'ALWAYS'], 
+                value='NEVER'
+            ).bind_value(data, 'human_input_mode')
 
+            speaker_selection_method_dropdown = ui.select(
+                label='Speaker Selection Method', 
+                options=['auto', 'manual', 'random', 'round_robin'], 
+                value='auto'
+            ).bind_value(data, 'speaker_selection_method')
+            allow_repeat_speaker = ui.select(
+                label='Allow Repeat Speaker', 
+                options=[True, False], 
+                value=True
+            ).bind_value(data, 'allow_repeat_speaker')
             container1 = ui.column().classes("gap-5 p-2")
             container2 = ui.column().classes("dialog-form-container gap-5").style("max-height: 600px; overflow-y: auto;")  # Set a maximum height and allow scrolling
             with container1:
