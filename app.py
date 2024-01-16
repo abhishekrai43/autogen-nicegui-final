@@ -230,4 +230,4 @@ def main():
         ui.label('Type /help to show help commands').style('color: #04571e; margin-left: 250px; margin-top:15px; font-weight: bold; font-weight: bold; font-family: \'Orbitron\', sans-serif;').classes('text-sm')
         
 
-ui.run(title='Agent Assist',host='0.0.0.0',port=443,ssl_certfile='/etc/letsencrypt/live/instaruth.com/fullchain.pem',ssl_keyfile='/etc/letsencrypt/live/instaruth.com/privkey.pem',reconnect_timeout=300)
+ui.run(title='Agent Assist',host='0.0.0.0',reconnect_timeout=300)
