@@ -49,10 +49,11 @@ def agent_card(container):
 def dialog_box(dialog):
     with ui.column():
         with ui.card().classes("w-full dialog-card"):
+            ui.label('Click the HELP button below to know more about these options')
             ui.separator()
-            ui.label("Max Count").classes("square")
+            ui.label("Max Rounds").classes("square")
             slider = ui.slider(min=0, max=35, value=15).props("square outlined").bind_value(data, 'max_count')
-            ui.label('Max Count').classes("square").bind_text(data, "max_count")
+            ui.label('Max Rounds').classes("square").bind_text(data, "max_count")
             human_input_mode_dropdown = ui.select(
                 label='Human Input Mode', 
                 options=['NEVER', 'TERMINATE', 'ALWAYS'], 
@@ -79,9 +80,34 @@ def dialog_box(dialog):
                 agent_card(container2)
             with ui.row().classes('flex justify-between w-full'):
                 ui.button("Cancel", on_click=lambda: dialog.submit("No"))
+                ui.button('Help', on_click=show_help_dialog)
                 ui.button("Ok", on_click=lambda: dialog.submit("Yes"))
 
+def show_help_dialog():
+        markdown_text = """
+        **Max Rounds**
+        The maximum number of rounds.
 
+        **Human Input Mode**
+        Specifies whether to ask for human inputs every time a message is received. Possible values are "ALWAYS", "TERMINATE", "NEVER".
+
+        - **ALWAYS**: The agent prompts for human input every time a message is received. The conversation stops when the human input is "exit", or when `is_termination_msg` is True and there is no human input.
+        - **TERMINATE**: The agent only prompts for human input when a termination message is received or the number of auto replies reaches `max_consecutive_auto_reply`.
+        - **NEVER**: The agent will never prompt for human input. The conversation stops when the number of auto replies reaches `max_consecutive_auto_reply` or when `is_termination_msg` is True.
+
+        **Speaker Selection Method**
+        The method for selecting the next speaker. The default is "auto". Options include (case insensitive):
+
+        - **auto**: The next speaker is selected automatically by the LLM.
+        - **manual**: The next speaker is selected manually by user input.
+        - **random**: The next speaker is selected randomly.
+        - **round_robin**: The next speaker is selected in a round-robin fashion, i.e., iterating in the same order as provided in agents.
+
+        **Allow Repeat Speaker**
+        Determines whether to allow the same speaker to speak consecutively. The default is `True`, where all speakers are allowed to speak consecutively. If `allow_repeat_speaker` is a list of Agents, then only those listed agents are allowed to repeat. If set to `False`, no speakers are allowed to repeat.
+
+        """
+        ui.markdown(markdown_text).style('color: #0FA47F; background-color: white; margin-top: 10px;')
 def custom_render_message(text, stamp, sender, avatar_url, sent):
     rendered = False
     parts = re.split(r"(<codeblock>.*?</codeblock>)", text, flags=re.DOTALL)

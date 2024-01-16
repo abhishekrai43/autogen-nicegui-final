@@ -7,6 +7,29 @@ from slash_commands import create_help_command,slash_commands,process_command
 from ui_components import custom_render_message, dialog_box,format_message,data,completion_message
 from positive_words import llm_resp,resp_llm,resp_only
 import json
+import asyncio
+
+
+user_input_result = None
+class CustomAssistantAgent(autogen.AssistantAgent):
+    async def a_get_human_input(self, prompt: str) -> str:
+        global user_input_result
+        user_input_result = None
+
+        def on_submit(input_value):
+            global user_input_result
+            user_input_result = input_value
+            dialog.close()
+
+        with ui.dialog() as dialog:
+            ui.label(prompt)
+            input_field = ui.text_input()
+            ui.button('Submit', on_click=lambda: on_submit(input_field.value))
+
+        while user_input_result is None:
+            await asyncio.sleep(0.1)  # Async wait for the input to be submitted
+
+        return user_input_result
 
 load_swear_words()
 last_processed_msg_index = -1
@@ -48,7 +71,7 @@ def main():
 
     user_proxy = autogen.UserProxyAgent(
         name="Requestor",
-        system_message=data['user_system_message'],
+        system_message='A human Admin',
         code_execution_config=False,
         human_input_mode=data['human_input_mode'],
     )
@@ -78,7 +101,7 @@ def main():
 
         # Adding new agents as per the data
         for agent_no in range(data['agent_no']):
-            agents.append(autogen.AssistantAgent(
+            agents.append(CustomAssistantAgent(
                 name=data['agents'][agent_no]['name'],
                 system_message=data['agents'][agent_no]['system_message'],
             ))
